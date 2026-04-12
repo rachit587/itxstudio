@@ -7,12 +7,16 @@ interface LiquidMetalButtonProps {
   label?: string;
   onClick?: () => void;
   viewMode?: "text" | "icon";
+  width?: number;
+  icon?: React.ReactNode;
 }
 
 export function LiquidMetalButton({
   label = "Get Started",
   onClick,
   viewMode = "text",
+  width,
+  icon,
 }: LiquidMetalButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
@@ -26,9 +30,10 @@ export function LiquidMetalButton({
     if (viewMode === "icon") {
       return { width: 46, height: 46, innerWidth: 42, innerHeight: 42, shaderWidth: 46, shaderHeight: 46 };
     } else {
-      return { width: 180, height: 50, innerWidth: 176, innerHeight: 46, shaderWidth: 180, shaderHeight: 50 };
+      const w = width || 180;
+      return { width: w, height: 50, innerWidth: w - 4, innerHeight: 46, shaderWidth: w, shaderHeight: 50 };
     }
-  }, [viewMode]);
+  }, [viewMode, width]);
 
   useEffect(() => {
     const styleId = "shader-canvas-style-exploded";
@@ -87,8 +92,13 @@ export function LiquidMetalButton({
       <div style={{ perspective: "1000px", perspectiveOrigin: "50% 50%" }}>
         <div style={{ position: "relative", width: `${dimensions.width}px`, height: `${dimensions.height}px`, transformStyle: "preserve-3d", transition: "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)" }}>
           <div style={{ position: "absolute", top: 0, left: 0, width: `${dimensions.width}px`, height: `${dimensions.height}px`, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", transform: "translateZ(20px)", zIndex: 30, pointerEvents: "none" }}>
-            {viewMode === "icon" && <Sparkles size={16} style={{ color: "#666666", filter: "drop-shadow(0px 1px 2px rgba(0,0,0,0.5))" }} />}
-            {viewMode === "text" && <span style={{ fontSize: "15px", color: "#666666", fontWeight: 400, textShadow: "0px 1px 2px rgba(0,0,0,0.5)", fontFamily: "Delius, cursive", whiteSpace: "nowrap" }}>{label}</span>}
+            {viewMode === "icon" && (icon || <Sparkles size={16} style={{ color: "#666666", filter: "drop-shadow(0px 1px 2px rgba(0,0,0,0.5))" }} />)}
+            {viewMode === "text" && (
+              <span style={{ fontSize: "15px", color: "#666666", fontWeight: 400, textShadow: "0px 1px 2px rgba(0,0,0,0.5)", fontFamily: "Delius, cursive", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: "8px" }}>
+                {icon}
+                {label}
+              </span>
+            )}
           </div>
           <div style={{ position: "absolute", top: 0, left: 0, width: `${dimensions.width}px`, height: `${dimensions.height}px`, transform: `translateZ(10px) ${isPressed ? "translateY(1px) scale(0.98)" : ""}`, zIndex: 20 }}>
             <div style={{ width: `${dimensions.innerWidth}px`, height: `${dimensions.innerHeight}px`, margin: "2px", borderRadius: "100px", background: "linear-gradient(180deg, #202020 0%, #000000 100%)" }} />

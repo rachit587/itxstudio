@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { Globe, Code, Smartphone, LayoutDashboard, Zap, Bot } from "lucide-react";
 import { LiquidMetalButton } from "./ui/liquid-metal-button";
+import { SplineScene } from "./ui/splite";
+import { Spotlight } from "./ui/spotlight";
 
 export default function Services() {
   const services = [
@@ -29,12 +31,21 @@ export default function Services() {
           </h2>
         </motion.div>
 
-        {/* Layout container: Left empty for Avatar, Right for Services */}
+        {/* Layout container: Left for Spline 3D, Right for Services */}
         <div className="flex-1 w-full my-4 md:my-6 flex flex-col lg:flex-row items-center justify-end relative">
           
-          {/* Avatar Space (Left 50%) */}
-          <div className="w-full lg:w-[50%] hidden lg:flex items-center justify-center h-full">
-            {/* Empty block intentionally reserved for 3D avatar module */}
+          {/* Spline 3D Robot (Left 50%) */}
+          <div className="w-full lg:w-[50%] hidden lg:flex items-center justify-center h-full relative">
+            <Spotlight
+              className="-top-40 left-0 md:left-60 md:-top-20"
+              fill="white"
+            />
+            <div style={{ width: "500px", height: "600px" }}>
+              <SplineScene 
+                scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+                className="w-full h-full"
+              />
+            </div>
           </div>
           
           {/* Right Side Services List (Right 50%) */}

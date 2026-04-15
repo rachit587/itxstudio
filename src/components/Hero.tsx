@@ -15,7 +15,7 @@ export default function Hero() {
       if (index > TITLE.length) {
         clearInterval(interval);
       }
-    }, 45); // Typing speed similar to conversational AI streaming output
+    }, 22); // Typing speed similar to conversational AI streaming output (2x speed)
 
     return () => clearInterval(interval);
   }, []);
@@ -28,7 +28,7 @@ export default function Hero() {
         <motion.div
            initial={{ opacity: 0, scale: 0.9 }}
            animate={{ opacity: 1, scale: 1 }}
-           transition={{ duration: 0.8 }}
+           transition={{ duration: 0.4 }}
            className="mb-8"
         >
           <img

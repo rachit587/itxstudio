@@ -1,10 +1,14 @@
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 import { Globe, Code, Smartphone, LayoutDashboard, Zap, Bot } from "lucide-react";
 import { LiquidMetalButton } from "./ui/liquid-metal-button";
 import { SplineScene } from "./ui/splite";
 import { Spotlight } from "./ui/spotlight";
 
 export default function Services() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-200px" });
+
   const services = [
     { icon: Globe, title: "Websites", desc: "Clean, fast, professional websites that represent your business online" },
     { icon: Code, title: "Full Stack Applications", desc: "End-to-end web apps with a proper backend, database and real-time features" },
@@ -35,16 +39,18 @@ export default function Services() {
         <div className="flex-1 w-full my-4 md:my-6 flex flex-col lg:flex-row items-center justify-end relative">
           
           {/* Spline 3D Robot (Left 50%) */}
-          <div className="w-full lg:w-[50%] hidden lg:flex items-center justify-center h-full relative">
+          <div ref={ref} className="w-full lg:w-[50%] hidden lg:flex items-center justify-center h-full relative">
             <Spotlight
               className="-top-40 left-0 md:left-60 md:-top-20"
               fill="white"
             />
             <div style={{ width: "500px", height: "600px" }}>
-              <SplineScene 
-                scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-                className="w-full h-full"
-              />
+              {isInView && (
+                <SplineScene 
+                  scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+                  className="w-full h-full"
+                />
+              )}
             </div>
           </div>
           

@@ -2,6 +2,7 @@ import { motion, useInView } from "framer-motion";
 import { Check, IndianRupee, ArrowRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { LiquidMetalButton } from "./ui/liquid-metal-button";
+import createGlobe from "cobe";
 
 function Counter({ from, to, label, suffix = "" }: { from: number; to: number; label: string; suffix?: string }) {
   const [count, setCount] = useState(from);
@@ -41,18 +42,59 @@ function Counter({ from, to, label, suffix = "" }: { from: number; to: number; l
   );
 }
 
+
+
 /* Spinning Globe */
 function SpinningGlobe() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    let phi = 0;
+
+    if (!canvasRef.current) return;
+
+    const globe = createGlobe(canvasRef.current, {
+      devicePixelRatio: 2,
+      width: 160,
+      height: 160,
+      phi: 0,
+      theta: 0,
+      dark: 1,
+      diffuse: 1.2,
+      mapSamples: 16000,
+      mapBrightness: 6,
+      baseColor: [0.1, 0.1, 0.1],
+      markerColor: [0, 1, 0.4],
+      glowColor: [0, 1, 0.4],
+      markers: [
+        // India
+        { location: [20.5937, 78.9629], size: 0.1 },
+      ],
+      // @ts-ignore: onRender is missing in cobe types
+      onRender: (state: Record<string, any>) => {
+        state.phi = phi;
+        phi += 0.005;
+      },
+    });
+
+    return () => {
+      globe.destroy();
+    };
+  }, []);
+
   return (
-    <motion.div
-      initial={{ rotateY: 0 }}
-      animate={{ rotateY: 360 }}
-      transition={{ duration: 4, ease: "linear", repeat: Infinity }}
-      className="text-3xl md:text-4xl lg:text-5xl leading-none"
-      style={{ display: "inline-block", transformStyle: "preserve-3d" }}
-    >
-      🌏
-    </motion.div>
+    <div className="w-[60px] h-[60px] md:w-[80px] md:h-[80px] flex items-center justify-center relative">
+      <canvas
+        ref={canvasRef}
+        style={{
+          width: "100%",
+          height: "100%",
+          contain: "layout paint size",
+          opacity: 1,
+          transition: "opacity 1s ease",
+        }}
+      />
+    </div>
   );
 }
 

@@ -1,5 +1,5 @@
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useCallback } from "react";
 
 export default function Portfolio() {
   return (
@@ -11,6 +11,7 @@ export default function Portfolio() {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ ease: [0.25, 0.46, 0.45, 0.94] }}
             className="text-4xl md:text-5xl lg:text-6xl text-white mb-4"
           >
             our work
@@ -19,7 +20,7 @@ export default function Portfolio() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="text-[#9a9a9a] text-lg lg:text-xl"
           >
             Coming soon. Great things are being built.
@@ -41,36 +42,31 @@ function PortfolioCard({ index }: { index: number }) {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
-  const rotateX = useTransform(y, [-0.5, 0.5], [15, -15]);
-  const rotateY = useTransform(x, [-0.5, 0.5], [-15, 15]);
+  const rotateX = useTransform(y, [-0.5, 0.5], [12, -12]);
+  const rotateY = useTransform(x, [-0.5, 0.5], [-12, 12]);
 
-  const smoothRotateX = useSpring(rotateX, { stiffness: 300, damping: 30 });
-  const smoothRotateY = useSpring(rotateY, { stiffness: 300, damping: 30 });
+  // Slightly softer springs for smoother 3D tilt
+  const smoothRotateX = useSpring(rotateX, { stiffness: 250, damping: 25 });
+  const smoothRotateY = useSpring(rotateY, { stiffness: 250, damping: 25 });
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    
-    x.set(mouseX / width - 0.5);
-    y.set(mouseY / height - 0.5);
-  };
+    x.set(e.clientX / rect.width - 0.5 - rect.left / rect.width);
+    y.set(e.clientY / rect.height - 0.5 - rect.top / rect.height);
+  }, [x, y]);
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
     x.set(0);
     y.set(0);
-  };
+  }, [x, y]);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ delay: index * 0.1, duration: 0.6 }}
+      transition={{ delay: index * 0.1, duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
       style={{ perspective: 1000 }}
     >
       <motion.div
@@ -82,7 +78,7 @@ function PortfolioCard({ index }: { index: number }) {
           rotateY: smoothRotateY,
           transformStyle: "preserve-3d",
         }}
-        className="group relative w-full aspect-video rounded-3xl bg-[#111111] overflow-hidden transition-shadow duration-500 hover:shadow-[0_0_30px_rgba(0,255,102,0.1)] border border-[#222222]"
+        className="group relative w-full aspect-video rounded-3xl bg-[#111111] overflow-hidden transition-shadow duration-500 ease-out hover:shadow-[0_0_30px_rgba(0,255,102,0.1)] border border-[#222222]"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] to-[#0f0f0f] z-0" />
         

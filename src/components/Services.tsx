@@ -27,7 +27,7 @@ export default function Services() {
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="text-center shrink-0 pt-4 md:pt-6"
         >
           <h2 className="text-4xl md:text-5xl lg:text-5xl text-white font-normal lowercase" style={{ textTransform: 'capitalize' }}>
@@ -35,7 +35,7 @@ export default function Services() {
           </h2>
         </motion.div>
 
-        {/* Layout container: Left for Spline 3D, Right for Services */}
+        {/* Layout container */}
         <div className="flex-1 w-full my-4 md:my-6 flex flex-col lg:flex-row items-center justify-end relative">
           
           {/* Spline 3D Robot (Left 50%) */}
@@ -54,7 +54,7 @@ export default function Services() {
             </div>
           </div>
           
-          {/* Right Side Services List (Right 50%) */}
+          {/* Right Side Services List */}
           <div className="w-full lg:w-[50%] flex flex-col gap-[6px] md:gap-2 px-2 md:px-4 shrink-0">
             {services.map((svc, idx) => (
               <motion.div
@@ -62,8 +62,13 @@ export default function Services() {
                 initial={{ opacity: 0, x: 30 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: 0.05 * idx, duration: 0.4 }}
-                className="group w-full relative rounded-2xl bg-[#1a1a1a] border border-[#222222] transition-all duration-300 hover:bg-[#00ff66] hover:border-[#00ff66] hover:shadow-[0_0_30px_rgba(0,255,102,0.5)] hover:scale-[1.01] cursor-pointer"
+                transition={{ 
+                  delay: 0.05 * idx, 
+                  duration: 0.5,
+                  ease: [0.25, 0.46, 0.45, 0.94]
+                }}
+                className="group w-full relative rounded-2xl bg-[#1a1a1a] border border-[#222222] transition-all duration-300 ease-out hover:bg-[#00ff66] hover:border-[#00ff66] hover:shadow-[0_0_30px_rgba(0,255,102,0.5)] hover:scale-[1.01] cursor-pointer"
+                style={{ willChange: 'transform, background-color' }}
               >
                 <div className="px-5 py-[10px] md:py-3">
                   <div className="flex items-center gap-4">
@@ -72,8 +77,7 @@ export default function Services() {
                       {svc.title}
                     </h3>
                   </div>
-                  {/* Minimized description height optimized to cleanly fit a single screen stack */}
-                  <div className="overflow-hidden transition-all duration-300 max-h-0 opacity-0 group-hover:max-h-[50px] group-hover:opacity-100 group-hover:mt-1">
+                  <div className="overflow-hidden transition-all duration-300 ease-out max-h-0 opacity-0 group-hover:max-h-[50px] group-hover:opacity-100 group-hover:mt-1">
                     <p className="text-black/80 text-xs md:text-sm pl-9 font-medium text-left leading-snug m-0">
                       {svc.desc}
                     </p>
@@ -85,12 +89,12 @@ export default function Services() {
 
         </div>
 
-        {/* Bottom: Let's Build Together button */}
+        {/* Bottom: CTA */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="text-center shrink-0 pb-4 md:pb-6 flex justify-center mt-auto"
         >
           <div className="relative group inline-block">

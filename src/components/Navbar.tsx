@@ -1,19 +1,22 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 
 export default function Navbar() {
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
 
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    setScrolled(latest > (typeof window !== "undefined" ? window.innerHeight / 2 : 400));
-  });
+  // Throttle the scroll event to avoid excessive state updates
+  useMotionValueEvent(scrollY, "change", useCallback((latest: number) => {
+    const threshold = typeof window !== "undefined" ? window.innerHeight / 2 : 400;
+    setScrolled(latest > threshold);
+  }, []));
 
   return (
     <motion.nav
-      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${
+      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ease-out ${
         scrolled ? "translate-y-0 bg-black/85 backdrop-blur-xl border-b border-[#222222]" : "-translate-y-full"
       }`}
+      style={{ willChange: scrolled ? 'transform' : 'auto' }}
     >
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         {/* Logo */}
@@ -22,6 +25,8 @@ export default function Navbar() {
             src="/itx-logo.png"
             alt="ITX Studio"
             className="h-18 w-auto object-contain"
+            loading="eager"
+            decoding="async"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).style.display = 'none';
             }}

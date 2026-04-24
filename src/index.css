@@ -26,6 +26,13 @@
   --foreground: var(--color-white);
 }
 
+/* ── Global performance ────────────────────────────── */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
 body {
   margin: 0;
   cursor: auto;
@@ -33,27 +40,39 @@ body {
   background-color: var(--color-bg);
   color: var(--color-silver);
   overflow-x: hidden;
+  /* Smooth paint compositing */
+  -webkit-tap-highlight-color: transparent;
 }
 
+/* ── Smooth scrollbar ──────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
   background: var(--color-bg);
 }
 ::-webkit-scrollbar-thumb {
   background: var(--color-border);
-  border-radius: 4px;
+  border-radius: 3px;
+  transition: background 0.3s ease;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-silver);
 }
 
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+/* Firefox scrollbar */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) var(--color-bg);
 }
 
+/* ── GPU-accelerated marquee ───────────────────────── */
+@keyframes marquee {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+/* ── Pulse ring (status badge) ─────────────────────── */
 @keyframes pulse-ring {
   0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(0, 255, 102, 0.7); }
   70% { transform: scale(1.4); box-shadow: 0 0 0 10px rgba(0, 255, 102, 0); }
@@ -66,11 +85,14 @@ body {
   }
 }
 
+/* ── GPU compositing helpers ───────────────────────── */
 .gpu-accelerated {
   transform: translateZ(0);
   will-change: transform;
+  backface-visibility: hidden;
 }
 
+/* ── Spotlight animation ───────────────────────────── */
 @keyframes spotlight {
   0% {
     opacity: 0;
@@ -88,7 +110,7 @@ body {
   }
 }
 
-/* Spline loading spinner */
+/* ── Spline loading spinner ────────────────────────── */
 .loader {
   width: 40px;
   height: 40px;
@@ -101,5 +123,36 @@ body {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* ── Content visibility for off-screen sections ────── */
+/* Skip rendering for sections below the fold until they approach the viewport */
+.section-lazy {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 100vh;
+}
+
+/* ── Image rendering optimization ──────────────────── */
+img {
+  image-rendering: auto;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* ── Smooth hover transitions globally ─────────────── */
+a, button {
+  transition: color 0.25s ease, background-color 0.25s ease, 
+              border-color 0.25s ease, box-shadow 0.25s ease,
+              transform 0.25s ease;
+}
+
+/* ── Reduced motion for accessibility ──────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

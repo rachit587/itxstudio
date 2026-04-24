@@ -111,6 +111,8 @@ function TestimonialCard({
           src={card.avatar}
           alt={card.author}
           className="w-12 h-12 rounded-full border-2 border-[#222222] object-cover pointer-events-none"
+          loading="lazy"
+          decoding="async"
         />
         <div className="flex-1">
           <p className="text-[#00ff66] text-sm md:text-base font-medium leading-tight">

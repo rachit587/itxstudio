@@ -1,6 +1,6 @@
 import { motion, useInView } from "framer-motion";
 import { Check } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 const MISSION = "Beautiful digital products. Built for you. Priced right.";
 
@@ -14,23 +14,25 @@ function Counter({ from, to, label, suffix = "" }: { from: number; to: number; l
       let start = from;
       const duration = 2000;
       const step = (to - from) / (duration / 16);
+      let rafId: number;
       
       const animate = () => {
         start += step;
-        if (start < to) {
+        if ((to > from && start < to) || (to < from && start > to)) {
           setCount(Math.floor(start));
-          requestAnimationFrame(animate);
+          rafId = requestAnimationFrame(animate);
         } else {
           setCount(to);
         }
       };
-      requestAnimationFrame(animate);
+      rafId = requestAnimationFrame(animate);
+      return () => cancelAnimationFrame(rafId);
     }
   }, [inView, from, to]);
 
   return (
     <div ref={ref} className="flex flex-col items-center gap-2">
-      <div className="text-4xl md:text-5xl lg:text-6xl text-[#00ff66]">
+      <div className="text-4xl md:text-5xl lg:text-6xl text-[#00ff66] tabular-nums">
         {count}{suffix}
       </div>
       <div className="text-[#9a9a9a] uppercase tracking-widest text-xs md:text-sm font-bold">
@@ -39,6 +41,9 @@ function Counter({ from, to, label, suffix = "" }: { from: number; to: number; l
     </div>
   );
 }
+
+// Consistent premium easing
+const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
 
 export default function About() {
   const words = MISSION.split(" ");
@@ -73,7 +78,7 @@ export default function About() {
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 0.8, ease: smoothEase }}
         className="text-[#9a9a9a] text-center max-w-[600px] text-lg md:text-xl leading-relaxed mb-16"
       >
         ITX Studio builds digital products that work — for startups, local businesses, and everyone in between. We don't do one-size-fits-all. Every project is built from scratch, exactly the way you need it, at a price that makes sense.
@@ -84,7 +89,7 @@ export default function About() {
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.8, delay: 0.2 }}
+        transition={{ duration: 0.8, delay: 0.2, ease: smoothEase }}
         className="flex flex-wrap justify-center gap-4 max-w-3xl mb-32"
       >
         {[
@@ -93,7 +98,7 @@ export default function About() {
           "Built for businesses of all sizes",
           "From startups to established businesses"
         ].map((fact, i) => (
-          <div key={i} className="flex items-center gap-2 bg-[#1a1a1a] border border-[#222222] rounded-full px-5 py-2">
+          <div key={i} className="flex items-center gap-2 bg-[#1a1a1a] border border-[#222222] rounded-full px-5 py-2 transition-all duration-300 ease-out hover:border-[#00ff66]/30 hover:shadow-[0_0_15px_rgba(0,255,102,0.08)]">
             <Check className="w-4 h-4 text-[#00ff66]" />
             <span className="text-[#9a9a9a] text-sm md:text-base">{fact}</span>
           </div>
@@ -105,6 +110,7 @@ export default function About() {
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
+        transition={{ ease: smoothEase }}
         className="text-[#9a9a9a] text-xs uppercase tracking-[0.2em]"
       >
         Team based in Bengaluru & Kolkata

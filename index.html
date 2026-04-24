@@ -5,7 +5,16 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/itx-logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://prod.spline.design" />
+    <link rel="preload" href="/itx-logo.png" as="image" />
     <title>ITX STUDIO</title>
+    <style>
+      /* Smooth page entrance — prevents FOUC */
+      html { opacity: 0; }
+      html.ready { opacity: 1; transition: opacity 0.4s ease; }
+    </style>
     <meta name="description" content="ITX Studio — Your one-stop solution for everything digital. We build websites, full-stack apps, mobile apps, AI automations, and more." />
     <meta name="theme-color" content="#0a0a0a" />
     <meta property="og:title" content="ITX STUDIO" />
@@ -20,5 +29,6 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>document.documentElement.classList.add('ready');</script>
   </body>
 </html>

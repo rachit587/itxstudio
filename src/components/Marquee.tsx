@@ -8,11 +8,19 @@ const ITEMS = [
 ];
 
 export default function Marquee() {
-  const repeatedItems = [...ITEMS, ...ITEMS, ...ITEMS, ...ITEMS]; // Enough for infinite scroll illusion
+  // Only need 2 copies for seamless loop (CSS animation handles the rest)
+  const repeatedItems = [...ITEMS, ...ITEMS];
 
   return (
     <div className="w-full h-[52px] bg-[#111111] overflow-hidden whitespace-nowrap flex items-center shadow-inner relative z-20 border-y border-[#222222]">
-      <div className="inline-block" style={{ animation: "marquee 150s linear infinite" }}>
+      <div 
+        className="inline-block gpu-accelerated"
+        style={{ 
+          animation: "marquee 120s linear infinite",
+          willChange: "transform",
+          backfaceVisibility: "hidden",
+        }}
+      >
         {repeatedItems.map((item, i) => (
           <span key={i} className="inline-flex items-center text-[#9a9a9a] uppercase tracking-[0.12em] text-[12px] font-delius mx-4">
             {item}

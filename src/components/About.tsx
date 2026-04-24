@@ -1,6 +1,6 @@
 import { motion, useInView } from "framer-motion";
 import { Check } from "lucide-react";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const MISSION = "Beautiful digital products. Built for you. Priced right.";
 

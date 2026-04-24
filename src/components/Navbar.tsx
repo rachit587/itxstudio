@@ -18,13 +18,13 @@ export default function Navbar() {
       }`}
       style={{ willChange: scrolled ? 'transform' : 'auto' }}
     >
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-6 h-20 md:h-32 flex items-center justify-between">
         {/* Logo */}
         <a href="#home" className="flex items-center">
           <img
             src="/itx-logo.png"
             alt="ITX Studio"
-            className="h-18 w-auto object-contain"
+            className="h-12 md:h-24 w-auto object-contain"
             loading="eager"
             decoding="async"
             onError={(e) => {

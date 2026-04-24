@@ -127,10 +127,10 @@ export default function Portfolio() {
   };
 
   return (
-    <div className="min-h-screen py-24 bg-[#0a0a0a] relative z-10 overflow-hidden flex flex-col justify-center">
+    <div className="min-h-[80vh] py-16 md:py-20 bg-[#0a0a0a] relative z-10 overflow-hidden flex flex-col justify-center">
       <div className="max-w-[100vw] mx-auto w-full">
         
-        <div className="text-center mb-16 px-4 md:px-8">
+        <div className="text-center mb-10 md:mb-12 px-4 md:px-8">
           <motion.h2 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -152,14 +152,14 @@ export default function Portfolio() {
         </div>
 
         {/* Infinite Scroll Marquee */}
-        <div className="relative w-full overflow-hidden h-[400px] md:h-[500px] flex items-center bg-[#0a0a0a] group cursor-pointer">
-          <div className="flex w-max animate-marquee space-x-6 md:space-x-10 px-6 md:px-10">
+        <div className="relative w-full overflow-hidden h-[300px] md:h-[400px] flex items-center bg-[#0a0a0a] group cursor-pointer">
+          <div className="flex w-max animate-marquee space-x-6 md:space-x-8 px-6 md:px-8">
             {/* Render projects array twice for seamless infinite scrolling */}
             {[...projects, ...projects].map((project, index) => (
               <div 
                 key={`${project.id}-${index}`}
                 onClick={() => openProject(project)}
-                className="relative flex-shrink-0 w-[280px] sm:w-[350px] md:w-[450px] aspect-video rounded-2xl bg-[#111111] border border-[#222222] overflow-hidden transition-all duration-300 hover:border-[#00ff66]/50 hover:shadow-[0_0_30px_rgba(0,255,102,0.15)] group/card"
+                className="relative flex-shrink-0 w-[280px] sm:w-[320px] md:w-[380px] aspect-video rounded-2xl bg-[#111111] border border-[#222222] overflow-hidden transition-all duration-300 hover:border-[#00ff66]/50 hover:shadow-[0_0_30px_rgba(0,255,102,0.15)] group/card"
               >
                 <img 
                   src={project.images[0]} 

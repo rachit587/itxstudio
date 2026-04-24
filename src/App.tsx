@@ -11,7 +11,6 @@ import About from './components/About';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import SpotlightEffect from './components/SpotlightEffect';
-import { LimelightNav } from './components/ui/limelight-nav';
 
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -81,8 +80,6 @@ export default function App() {
         </section>
         
         <Footer />
-        
-        <LimelightNav />
       </motion.main>
     </AnimatePresence>
   );

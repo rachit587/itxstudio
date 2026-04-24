@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
 type Project = {
@@ -83,6 +83,128 @@ const projects: Project[] = [
   },
 ];
 
+/* Draggable + auto-scrolling marquee */
+function PortfolioMarquee({ projects, onProjectClick }: { projects: Project[]; onProjectClick: (p: Project) => void }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
+  const hasDragged = useRef(false);
+  const isPaused = useRef(false);
+  const speedRef = useRef(0.5); // px per frame
+
+  // Auto-scroll with RAF
+  useEffect(() => {
+    let rafId: number;
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const tick = () => {
+      if (!isDragging.current && !isPaused.current && el) {
+        el.scrollLeft += speedRef.current;
+        // Loop: if scrolled past half (the duplicate), reset
+        const halfWidth = el.scrollWidth / 2;
+        if (el.scrollLeft >= halfWidth) {
+          el.scrollLeft -= halfWidth;
+        }
+      }
+      rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, []);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    isDragging.current = true;
+    hasDragged.current = false;
+    startX.current = e.pageX - (scrollRef.current?.offsetLeft || 0);
+    scrollLeft.current = scrollRef.current?.scrollLeft || 0;
+  }, []);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging.current || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - (scrollRef.current.offsetLeft || 0);
+    const walk = (x - startX.current) * 1.5;
+    if (Math.abs(walk) > 5) hasDragged.current = true;
+    scrollRef.current.scrollLeft = scrollLeft.current - walk;
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    isDragging.current = false;
+  }, []);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    isDragging.current = true;
+    hasDragged.current = false;
+    startX.current = e.touches[0].pageX - (scrollRef.current?.offsetLeft || 0);
+    scrollLeft.current = scrollRef.current?.scrollLeft || 0;
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!isDragging.current || !scrollRef.current) return;
+    const x = e.touches[0].pageX - (scrollRef.current.offsetLeft || 0);
+    const walk = (x - startX.current) * 1.5;
+    if (Math.abs(walk) > 5) hasDragged.current = true;
+    scrollRef.current.scrollLeft = scrollLeft.current - walk;
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    isDragging.current = false;
+  }, []);
+
+  const handleCardClick = useCallback((project: Project) => {
+    if (!hasDragged.current) {
+      onProjectClick(project);
+    }
+  }, [onProjectClick]);
+
+  const allProjects = [...projects, ...projects];
+
+  return (
+    <div
+      ref={scrollRef}
+      className="relative w-full overflow-x-auto h-[300px] md:h-[400px] flex items-center bg-[#0a0a0a] cursor-grab active:cursor-grabbing select-none"
+      style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={() => { isDragging.current = false; isPaused.current = false; }}
+      onMouseEnter={() => { isPaused.current = true; }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      <div className="flex w-max space-x-6 md:space-x-8 px-6 md:px-8">
+        {allProjects.map((project, index) => (
+          <div
+            key={`${project.id}-${index}`}
+            onClick={() => handleCardClick(project)}
+            className="relative flex-shrink-0 w-[280px] sm:w-[320px] md:w-[380px] aspect-video rounded-2xl bg-[#111111] border border-[#222222] overflow-hidden transition-all duration-300 hover:border-[#00ff66]/50 hover:shadow-[0_0_30px_rgba(0,255,102,0.15)] group/card"
+          >
+            <img
+              src={project.images[0]}
+              alt={project.title}
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105 pointer-events-none"
+              loading="lazy"
+              draggable={false}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 p-6 w-full transform translate-y-2 transition-transform duration-300 group-hover/card:translate-y-0 pointer-events-none">
+              <p className="text-[#00ff66] text-xs uppercase tracking-widest font-bold mb-1">
+                {project.category}
+              </p>
+              <h3 className="text-white text-2xl font-medium">
+                {project.title}
+              </h3>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Portfolio() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
@@ -151,35 +273,8 @@ export default function Portfolio() {
           </motion.p>
         </div>
 
-        {/* Infinite Scroll Marquee */}
-        <div className="relative w-full overflow-hidden h-[300px] md:h-[400px] flex items-center bg-[#0a0a0a] group cursor-pointer">
-          <div className="flex w-max animate-marquee space-x-6 md:space-x-8 px-6 md:px-8">
-            {/* Render projects array twice for seamless infinite scrolling */}
-            {[...projects, ...projects].map((project, index) => (
-              <div 
-                key={`${project.id}-${index}`}
-                onClick={() => openProject(project)}
-                className="relative flex-shrink-0 w-[280px] sm:w-[320px] md:w-[380px] aspect-video rounded-2xl bg-[#111111] border border-[#222222] overflow-hidden transition-all duration-300 hover:border-[#00ff66]/50 hover:shadow-[0_0_30px_rgba(0,255,102,0.15)] group/card"
-              >
-                <img 
-                  src={project.images[0]} 
-                  alt={project.title} 
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80" />
-                <div className="absolute bottom-0 left-0 p-6 w-full transform translate-y-2 transition-transform duration-300 group-hover/card:translate-y-0">
-                  <p className="text-[#00ff66] text-xs uppercase tracking-widest font-bold mb-1">
-                    {project.category}
-                  </p>
-                  <h3 className="text-white text-2xl font-medium">
-                    {project.title}
-                  </h3>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* Infinite Scroll Marquee — supports both auto-scroll and manual drag/swipe */}
+        <PortfolioMarquee projects={projects} onProjectClick={openProject} />
 
       </div>
 

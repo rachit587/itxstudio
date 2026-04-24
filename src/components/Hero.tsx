@@ -32,7 +32,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+    <div className="relative min-h-[75vh] md:min-h-screen flex items-center justify-center pt-16 md:pt-20 overflow-hidden">
       <BackgroundPaths />
 
       <div className="relative z-10 container mx-auto px-4 md:px-6 text-center flex flex-col items-center -translate-y-16 md:-translate-y-24">

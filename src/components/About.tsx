@@ -1,6 +1,7 @@
 import { motion, useInView } from "framer-motion";
 import { Check, IndianRupee, ArrowRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { LiquidMetalButton } from "./ui/liquid-metal-button";
 
 function Counter({ from, to, label, suffix = "" }: { from: number; to: number; label: string; suffix?: string }) {
   const [count, setCount] = useState(from);
@@ -40,6 +41,21 @@ function Counter({ from, to, label, suffix = "" }: { from: number; to: number; l
   );
 }
 
+/* Spinning Globe */
+function SpinningGlobe() {
+  return (
+    <motion.div
+      initial={{ rotateY: 0 }}
+      animate={{ rotateY: 360 }}
+      transition={{ duration: 4, ease: "linear", repeat: Infinity }}
+      className="text-3xl md:text-4xl lg:text-5xl leading-none"
+      style={{ display: "inline-block", transformStyle: "preserve-3d" }}
+    >
+      🌏
+    </motion.div>
+  );
+}
+
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
 
 export default function About() {
@@ -66,19 +82,19 @@ export default function About() {
         We build custom digital products for Indian &amp; international clients — no templates, no shortcuts.
       </motion.p>
 
-      {/* Stats Row */}
+      {/* Stats Row — 4 columns on all sizes */}
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8, delay: 0.2, ease: smoothEase }}
-        className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-16 w-full max-w-4xl mb-24"
+        className="grid grid-cols-4 gap-4 sm:gap-8 md:gap-16 w-full max-w-4xl mb-24"
       >
         <Counter from={0} to={12} suffix="+" label="Projects Delivered" />
         <Counter from={0} to={100} suffix="%" label="Custom Built" />
         <Counter from={0} to={100} suffix="%" label="Trustworthy" />
-        <div className="flex flex-col items-center gap-2 col-span-2 md:col-span-1">
-          <div className="text-3xl md:text-4xl lg:text-5xl text-[#00ff66]">🌏</div>
+        <div className="flex flex-col items-center gap-2">
+          <SpinningGlobe />
           <div className="text-[#9a9a9a] uppercase tracking-widest text-[10px] md:text-xs font-bold text-center">India & Global</div>
         </div>
       </motion.div>
@@ -134,12 +150,17 @@ export default function About() {
               <p className="text-[#9a9a9a] text-sm text-center">
                 Your price. Your features. Nothing extra.
               </p>
-              <a 
-                href="#contact"
-                className="mt-4 inline-flex items-center gap-2 bg-[#00ff66] text-black font-bold text-sm uppercase tracking-wider px-8 py-3 rounded-full transition-all duration-300 hover:bg-[#00ff66]/90 hover:shadow-[0_0_30px_rgba(0,255,102,0.3)] hover:scale-105 active:scale-95"
-              >
-                Let&apos;s Talk <ArrowRight className="w-4 h-4" />
-              </a>
+              <div className="mt-4">
+                <LiquidMetalButton
+                  label="Let's Talk"
+                  icon={<ArrowRight size={18} />}
+                  width={180}
+                  onClick={() => {
+                    const el = document.getElementById("contact");
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  }}
+                />
+              </div>
             </motion.div>
           </div>
         </div>

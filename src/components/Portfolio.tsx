@@ -91,7 +91,7 @@ function PortfolioMarquee({ projects, onProjectClick }: { projects: Project[]; o
   const scrollLeft = useRef(0);
   const hasDragged = useRef(false);
   const isPaused = useRef(false);
-  const speedRef = useRef(0.5); // px per frame
+  const speedRef = useRef(0.55); // px per frame (1.1x of 0.5)
 
   // Auto-scroll with RAF
   useEffect(() => {

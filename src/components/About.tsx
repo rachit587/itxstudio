@@ -2,12 +2,11 @@ import { motion, useInView } from "framer-motion";
 import { Check, IndianRupee, ArrowRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { LiquidMetalButton } from "./ui/liquid-metal-button";
-import createGlobe from "cobe";
 
 function Counter({ from, to, label, suffix = "" }: { from: number; to: number; label: string; suffix?: string }) {
   const [count, setCount] = useState(from);
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
+  const inView = useInView(ref, { once: true, margin: "0px" });
 
   useEffect(() => {
     if (inView) {
@@ -44,57 +43,92 @@ function Counter({ from, to, label, suffix = "" }: { from: number; to: number; l
 
 
 
+import * as THREE from "three";
+
 /* Spinning Globe */
 function SpinningGlobe() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let phi = 0;
+    if (!mountRef.current) return;
 
-    if (!canvasRef.current) return;
+    // Scene setup
+    const scene = new THREE.Scene();
+    
+    // Camera setup
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    camera.position.z = 2.5;
 
-    const globe = createGlobe(canvasRef.current, {
-      devicePixelRatio: 2,
-      width: 160,
-      height: 160,
-      phi: 0,
-      theta: 0,
-      dark: 1,
-      diffuse: 1.2,
-      mapSamples: 16000,
-      mapBrightness: 6,
-      baseColor: [0.1, 0.1, 0.1],
-      markerColor: [0, 1, 0.4],
-      glowColor: [0, 1, 0.4],
-      markers: [
-        // India
-        { location: [20.5937, 78.9629], size: 0.1 },
-      ],
-      // @ts-ignore: onRender is missing in cobe types
-      onRender: (state: Record<string, any>) => {
-        state.phi = phi;
-        phi += 0.005;
-      },
+    // Renderer setup
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(80, 80);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    mountRef.current.appendChild(renderer.domElement);
+
+    // Geometry & Material
+    const geometry = new THREE.SphereGeometry(1, 32, 32);
+    const textureLoader = new THREE.TextureLoader();
+    const texture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg');
+    
+    const material = new THREE.MeshStandardMaterial({
+      map: texture,
+      roughness: 0.6,
+      metalness: 0.1,
     });
 
+    const earth = new THREE.Mesh(geometry, material);
+    // Tilt the earth on its axis
+    earth.rotation.z = 23.5 * Math.PI / 180;
+    scene.add(earth);
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    directionalLight.position.set(5, 3, 5);
+    scene.add(directionalLight);
+
+    // Animation loop
+    let reqId: number;
+    const animate = () => {
+      reqId = requestAnimationFrame(animate);
+      earth.rotation.y += 0.005; // Spin on its axis
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    // Handle Resize
+    const handleResize = () => {
+      if (!mountRef.current) return;
+      const width = mountRef.current.clientWidth;
+      const height = mountRef.current.clientHeight;
+      renderer.setSize(width, height);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    };
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    // Cleanup
     return () => {
-      globe.destroy();
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(reqId);
+      if (mountRef.current && renderer.domElement) {
+        mountRef.current.removeChild(renderer.domElement);
+      }
+      geometry.dispose();
+      material.dispose();
+      texture.dispose();
+      renderer.dispose();
     };
   }, []);
 
   return (
-    <div className="w-[60px] h-[60px] md:w-[80px] md:h-[80px] flex items-center justify-center relative">
-      <canvas
-        ref={canvasRef}
-        style={{
-          width: "100%",
-          height: "100%",
-          contain: "layout paint size",
-          opacity: 1,
-          transition: "opacity 1s ease",
-        }}
-      />
-    </div>
+    <div 
+      ref={mountRef} 
+      className="w-[60px] h-[60px] md:w-[80px] md:h-[80px] flex items-center justify-center relative"
+    />
   );
 }
 

@@ -5,6 +5,37 @@ import { LiquidMetalButton } from "./ui/liquid-metal-button";
 import { SplineScene } from "./ui/splite";
 import { Spotlight } from "./ui/spotlight";
 
+/* Mobile-only robot — lazy-loaded when scrolled into view */
+function MobileRobot() {
+  const mobileRef = useRef<HTMLDivElement>(null);
+  const isMobileInView = useInView(mobileRef, { once: true, margin: "-80px" });
+
+  return (
+    <motion.div
+      ref={mobileRef}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
+      className="lg:hidden w-full flex items-center justify-center mt-4"
+    >
+      <div
+        className="relative overflow-hidden rounded-2xl border border-[#222222] bg-[#111111]/60 shadow-[0_0_40px_rgba(0,255,102,0.05)]"
+        style={{ width: "100%", maxWidth: "360px", height: "280px" }}
+      >
+        {/* Subtle glow behind robot */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] via-transparent to-transparent pointer-events-none z-10" />
+        {isMobileInView && (
+          <SplineScene
+            scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+            className="w-full h-full"
+          />
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
 export default function Services() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-200px" });
@@ -38,7 +69,7 @@ export default function Services() {
         {/* Layout container */}
         <div className="flex-1 w-full my-4 md:my-6 flex flex-col lg:flex-row items-center justify-end relative">
           
-          {/* Spline 3D Robot (Left 50%) */}
+          {/* Spline 3D Robot — Desktop only (Left 50%) */}
           <div ref={ref} className="w-full lg:w-[50%] hidden lg:flex items-center justify-center h-full relative">
             <Spotlight
               className="-top-40 left-0 md:left-60 md:-top-20"
@@ -86,6 +117,9 @@ export default function Services() {
               </motion.div>
             ))}
           </div>
+
+          {/* Spline 3D Robot — Mobile only (below the services list) */}
+          <MobileRobot />
 
         </div>
 

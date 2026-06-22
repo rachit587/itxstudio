@@ -1,45 +1,8 @@
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import { Check, IndianRupee, ArrowRight } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { LiquidMetalButton } from "./ui/liquid-metal-button";
 
-function Counter({ from, to, label, suffix = "" }: { from: number; to: number; label: string; suffix?: string }) {
-  const [count, setCount] = useState(from);
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "0px" });
-
-  useEffect(() => {
-    if (inView) {
-      let start = from;
-      const duration = 2000;
-      const step = (to - from) / (duration / 16);
-      let rafId: number;
-      
-      const animate = () => {
-        start += step;
-        if ((to > from && start < to) || (to < from && start > to)) {
-          setCount(Math.floor(start));
-          rafId = requestAnimationFrame(animate);
-        } else {
-          setCount(to);
-        }
-      };
-      rafId = requestAnimationFrame(animate);
-      return () => cancelAnimationFrame(rafId);
-    }
-  }, [inView, from, to]);
-
-  return (
-    <div ref={ref} className="flex flex-col items-center gap-2">
-      <div className="text-3xl md:text-4xl lg:text-5xl text-[#00ff66] tabular-nums">
-        {count}{suffix}
-      </div>
-      <div className="text-[#9a9a9a] uppercase tracking-widest text-[10px] md:text-xs font-bold text-center">
-        {label}
-      </div>
-    </div>
-  );
-}
 
 
 
@@ -50,7 +13,11 @@ function SpinningGlobe() {
   const mountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!mountRef.current) return;
+    const container = mountRef.current;
+    if (!container) return;
+
+    // Clear any existing children to prevent double-rendering in React StrictMode
+    container.innerHTML = "";
 
     // Scene setup
     const scene = new THREE.Scene();
@@ -61,20 +28,31 @@ function SpinningGlobe() {
 
     // Renderer setup
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(80, 80);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    mountRef.current.appendChild(renderer.domElement);
+    renderer.setSize(container.clientWidth || 80, container.clientHeight || 80);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
 
     // Geometry & Material
     const geometry = new THREE.SphereGeometry(1, 32, 32);
     const textureLoader = new THREE.TextureLoader();
-    const texture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg');
     
     const material = new THREE.MeshStandardMaterial({
-      map: texture,
+      color: 0xffffff,
       roughness: 0.6,
       metalness: 0.1,
     });
+
+    const texture = textureLoader.load(
+      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg',
+      () => {},
+      undefined,
+      (err) => {
+        console.error("Failed to load earth texture, falling back to blue sphere", err);
+        material.color.setHex(0x1a3a5f);
+        material.needsUpdate = true;
+      }
+    );
+    material.map = texture;
 
     const earth = new THREE.Mesh(geometry, material);
     // Tilt the earth on its axis
@@ -100,22 +78,21 @@ function SpinningGlobe() {
 
     // Handle Resize
     const handleResize = () => {
-      if (!mountRef.current) return;
-      const width = mountRef.current.clientWidth;
-      const height = mountRef.current.clientHeight;
+      if (!container) return;
+      const width = container.clientWidth;
+      const height = container.clientHeight;
       renderer.setSize(width, height);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
     };
     window.addEventListener('resize', handleResize);
-    handleResize();
 
     // Cleanup
     return () => {
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(reqId);
-      if (mountRef.current && renderer.domElement) {
-        mountRef.current.removeChild(renderer.domElement);
+      if (container && renderer.domElement && container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
       }
       geometry.dispose();
       material.dispose();
@@ -127,7 +104,7 @@ function SpinningGlobe() {
   return (
     <div 
       ref={mountRef} 
-      className="w-[60px] h-[60px] md:w-[80px] md:h-[80px] flex items-center justify-center relative"
+      className="w-[60px] h-[60px] md:w-[80px] md:h-[80px] flex items-center justify-center relative overflow-hidden"
     />
   );
 }
@@ -158,20 +135,29 @@ export default function About() {
         We build custom digital products for Indian &amp; international clients — no templates, no shortcuts.
       </motion.p>
 
-      {/* Stats Row — 4 columns on all sizes */}
+      {/* Vision Statement */}
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8, delay: 0.2, ease: smoothEase }}
-        className="grid grid-cols-4 gap-4 sm:gap-8 md:gap-16 w-full max-w-4xl mb-24"
+        className="flex flex-col md:flex-row items-center gap-8 md:gap-16 w-full max-w-5xl mb-24 bg-[#111111] p-8 md:p-12 rounded-3xl border border-[#222222] shadow-2xl relative overflow-hidden"
       >
-        <Counter from={0} to={12} suffix="+" label="Projects Delivered" />
-        <Counter from={0} to={100} suffix="%" label="Custom Built" />
-        <Counter from={0} to={100} suffix="%" label="Trustworthy" />
-        <div className="flex flex-col items-center gap-2">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[#00ff66]/5 rounded-full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/3" />
+        
+        <div className="flex-1 text-center md:text-left relative z-10">
+          <h3 className="text-3xl md:text-4xl text-white font-medium mb-6 tracking-tight">We have bigger dreams.</h3>
+          <p className="text-[#9a9a9a] text-base md:text-lg leading-relaxed mb-4">
+            We don't chase project counts or churn out templates. We chase perfection. Our goal is to craft immersive digital experiences that don't just look phenomenal—they drive real, measurable value.
+          </p>
+          <p className="text-[#9a9a9a] text-base md:text-lg leading-relaxed">
+            We charge what we're worth because we deliver uncompromising quality that elevates your brand above the noise. Your success is our reputation.
+          </p>
+        </div>
+        
+        <div className="w-36 h-36 md:w-44 md:h-44 flex flex-col items-center justify-center gap-2 md:gap-3 bg-[#0a0a0a] rounded-full border border-[#222222] shadow-[0_0_40px_rgba(0,255,102,0.05)] relative z-10 flex-shrink-0">
           <SpinningGlobe />
-          <div className="text-[#9a9a9a] uppercase tracking-widest text-[10px] md:text-xs font-bold text-center">India & Global</div>
+          <div className="text-[#00ff66] uppercase tracking-widest text-[9px] md:text-[10px] font-bold text-center">Global Standard</div>
         </div>
       </motion.div>
 

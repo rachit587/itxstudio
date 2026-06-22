@@ -1,16 +1,17 @@
 import Lenis from 'lenis';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense, lazy } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Marquee from './components/Marquee';
-import Services from './components/Services';
-import Portfolio from './components/Portfolio';
-import Testimonials from './components/Testimonials';
-import About from './components/About';
-import Contact from './components/Contact';
 import Footer from './components/Footer';
 import SpotlightEffect from './components/SpotlightEffect';
+
+const Services = lazy(() => import('./components/Services'));
+const TrustSection = lazy(() => import('./components/TrustSection'));
+const Testimonials = lazy(() => import('./components/Testimonials'));
+const About = lazy(() => import('./components/About'));
+const Contact = lazy(() => import('./components/Contact'));
 
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -59,25 +60,27 @@ export default function App() {
         
         <Marquee />
         
-        <section id="services" className="section-lazy">
-          <Services />
-        </section>
-        
-        <section id="portfolio" className="section-lazy">
-          <Portfolio />
-        </section>
-        
-        <div className="section-lazy">
-          <Testimonials />
-        </div>
-        
-        <section id="about" className="section-lazy">
-          <About />
-        </section>
-        
-        <section id="contact" className="section-lazy">
-          <Contact />
-        </section>
+        <Suspense fallback={<div className="h-screen bg-[#0a0a0a]" />}>
+          <section id="services" className="section-lazy">
+            <Services />
+          </section>
+          
+          <section id="portfolio" className="section-lazy">
+            <TrustSection />
+          </section>
+          
+          <div className="section-lazy">
+            <Testimonials />
+          </div>
+          
+          <section id="about" className="section-lazy">
+            <About />
+          </section>
+          
+          <section id="contact" className="section-lazy">
+            <Contact />
+          </section>
+        </Suspense>
         
         <Footer />
       </motion.main>
